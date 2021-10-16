@@ -2,6 +2,7 @@
   <q-page class="flex flex-center column">
     <div v-show="streaming" class="row">
       <video
+        v-show="false"
         autoplay
         ref="camInput"
         id="camInput"
@@ -43,7 +44,7 @@ export default {
     sendNewData: async function (peopleAmount, placeId) {
       const res = await axios({
         method: "POST",
-        url: "http://localhost:3000/api/v1/data",
+        url: "http://localhost:3000/api/v1/data/",
         data: {
           placeId,
           peopleAmount,
@@ -99,7 +100,7 @@ export default {
         console.log(this.frameIndex);
         this.peopleFound.push(lights.size());
         let delay = 1000 / FPS - (Date.now() - begin);
-        if (this.frameIndex >= 40) {
+        if (this.frameIndex >= 50) {
           const highestAmount = Math.max(...this.peopleFound);
           this.sendNewData(highestAmount, 1);
           console.log("HIGHEST: ", highestAmount);
@@ -139,7 +140,7 @@ export default {
       let lights = new cv.RectVector();
       let classifier = new cv.CascadeClassifier();
 
-      let lightsCascadeFile = `haarcascade_upperbody.xml`;
+      let lightsCascadeFile = `haarcascade_frontalface_default.xml`;
       this.createFileFromUrl(lightsCascadeFile, lightsCascadeFile, () => {
         classifier.load(lightsCascadeFile);
       });
@@ -171,7 +172,7 @@ export default {
         console.log(this.frameIndex);
         this.peopleFound.push(lights.size());
         let delay = 1000 / FPS - (Date.now() - begin);
-        if (this.frameIndex >= 40) {
+        if (this.frameIndex >= 50) {
           const highestAmount = Math.max(...this.peopleFound);
           this.sendNewData(highestAmount, 1);
           console.log("HIGHEST: ", highestAmount);
