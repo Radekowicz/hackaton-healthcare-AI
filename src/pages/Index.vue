@@ -21,6 +21,8 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   name: "Index",
   data() {
@@ -37,6 +39,19 @@ export default {
       tracks.forEach(function (track) {
         track.stop();
       });
+    },
+    sendNewData: async function (peopleAmount, placeId) {
+      const res = await axios({
+        method: "POST",
+        url: "http://localhost:3000/api/v1/data",
+        data: {
+          placeId,
+          peopleAmount,
+        },
+      });
+      if ((res.data.status = "success")) {
+        console.log("Sent successfully!");
+      }
     },
     restreamVideo: function (classifier) {
       this.streaming = true;
@@ -57,13 +72,6 @@ export default {
       let cap = new cv.VideoCapture(video);
 
       let lights = new cv.RectVector();
-      // let classifier = new cv.CascadeClassifier();
-
-      // let lightsCascadeFile = `haarcascade_upperbody.xml`;
-      // this.createFileFromUrl(lightsCascadeFile, lightsCascadeFile, () => {
-      //   classifier.load(lightsCascadeFile);
-      // });
-      // classifier.load(lightsCascadeFile);
 
       const FPS = 30;
 
@@ -91,15 +99,16 @@ export default {
         console.log(this.frameIndex);
         this.peopleFound.push(lights.size());
         let delay = 1000 / FPS - (Date.now() - begin);
-        if (this.frameIndex >= 30) {
+        if (this.frameIndex >= 40) {
           const highestAmount = Math.max(...this.peopleFound);
+          this.sendNewData(highestAmount, 1);
           console.log("HIGHEST: ", highestAmount);
           this.peopleFound.length = 0;
           this.frameIndex = 0;
           this.stopVideo(video);
           return setTimeout(() => {
             this.restreamVideo(classifier);
-          }, 2000);
+          }, 300000);
         }
         if (this.streaming) setTimeout(processVideo, delay);
         else {
@@ -162,15 +171,16 @@ export default {
         console.log(this.frameIndex);
         this.peopleFound.push(lights.size());
         let delay = 1000 / FPS - (Date.now() - begin);
-        if (this.frameIndex >= 30) {
+        if (this.frameIndex >= 40) {
           const highestAmount = Math.max(...this.peopleFound);
+          this.sendNewData(highestAmount, 1);
           console.log("HIGHEST: ", highestAmount);
           this.peopleFound.length = 0;
           this.frameIndex = 0;
           this.stopVideo(video);
           return setTimeout(() => {
             this.restreamVideo(classifier);
-          }, 2000);
+          }, 300000);
         }
         if (this.streaming) setTimeout(processVideo, delay);
         else {
